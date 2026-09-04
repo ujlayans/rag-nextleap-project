@@ -16,6 +16,12 @@ VECTOR_DB_DIR = DATA_DIR / "vectordb"
 CHROMA_PERSIST_DIR = VECTOR_DB_DIR / "chroma"
 COLLECTION_NAME = "sbi_schemes"
 
+# Runtime (lightweight) retrieval artifacts — exported from the Chroma collection.
+# The deployed query path reads these instead of ChromaDB to stay under 512MB.
+RETRIEVAL_DIR = DATA_DIR / "retrieval"
+RETRIEVAL_INDEX_PATH = RETRIEVAL_DIR / "index.npz"
+RETRIEVAL_RECORDS_PATH = RETRIEVAL_DIR / "records.json"
+
 # Legacy path (existing ingest.py) — kept for backwards compatibility
 CHROMA_DIR = ROOT / "chroma_db"
 LEGACY_COLLECTION_NAME = "sbi_groww_schemes"

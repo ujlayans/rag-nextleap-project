@@ -12,6 +12,7 @@ from src.config import (
     DISCLAIMER,
     EXAMPLE_QUESTIONS,
     GROWW_GREEN_HOVER,
+    RETRIEVAL_INDEX_PATH,
 )
 
 SCHEME_LIST = [
@@ -398,10 +399,10 @@ def render_disclaimer() -> None:
 
 
 def warn_if_store_empty() -> None:
-    """Surface a warning if the ChromaDB store hasn't been built."""
-    if not (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists():
+    """Surface a warning if the runtime retrieval index hasn't been built."""
+    if not RETRIEVAL_INDEX_PATH.exists():
         st.warning(
-            "Vector store is empty (data/vectordb/chroma missing). "
+            "Search index is missing (data/retrieval/index.npz not found). "
             "From the project folder run the ingestion pipeline to build it."
         )
 

@@ -33,6 +33,7 @@ from src.config import (
     VECTORS_PATH,
 )
 from src.embedding.encoder import Embedder
+from src.vector_store.numpy_store import export_from_chroma
 from src.vector_store.store import VectorStore
 
 logging.basicConfig(
@@ -92,12 +93,16 @@ def ingest(rebuild: bool = False) -> int:
     ]
 
     n = store.upsert(vectors, chunk_ids, documents, metadatas)
+    total = store.count()
+    store.close()
+    exported = export_from_chroma() if n > 0 else 0
     logger.info(
-        "Upserted %d vector(s) into %s (%s). Total: %d",
+        "Upserted %d vector(s) into %s (%s). Total: %d (runtime index: %d)",
         n,
         CHROMA_PERSIST_DIR_NAME(),
         COLLECTION_NAME,
-        store.count(),
+        total,
+        exported,
     )
     return n
 

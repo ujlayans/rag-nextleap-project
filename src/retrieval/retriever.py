@@ -1,14 +1,19 @@
-"""Retriever: embed a question and fetch the top-k chunks from ChromaDB."""
+"""Retriever: embed a question and fetch the top-k chunks."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from src.config import TOP_K
-from src.embedding.encoder import Embedder
-from src.vector_store.store import VectorStore
+from src.embedding.onnx_embedder import get_embedder
+from src.vector_store.numpy_store import NumpyVectorStore
+
+if TYPE_CHECKING:  # heavy deps are imported lazily (runtime stays < 512MB)
+    from src.embedding.encoder import Embedder
+    from src.vector_store.store import VectorStore
 
 
 @dataclass
@@ -32,8 +37,8 @@ class Retriever:
         store: VectorStore | None = None,
         top_k: int = TOP_K,
     ) -> None:
-        self.embedder = embedder or Embedder()
-        self.store = store or VectorStore()
+        self.embedder = embedder or get_embedder()
+        self.store = store or _build_store()
         self.top_k = top_k
 
     def retrieve(
@@ -74,3 +79,12 @@ class Retriever:
                 )
             )
         return chunks
+
+
+def _build_store() -> Any:
+    """Prefer the lightweight numpy store; fall back to ChromaDB if needed."""
+    if NumpyVectorStore.available():
+        return NumpyVectorStore()
+    from src.vector_store.store import VectorStore  # lazy: pulls chromadb
+
+    return VectorStore()

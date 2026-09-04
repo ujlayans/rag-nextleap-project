@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st
 
-from src.config import CHROMA_PERSIST_DIR, LOCAL_MODEL_DIR, WELCOME
+from src.config import CHROMA_PERSIST_DIR, LOCAL_MODEL_DIR, RETRIEVAL_INDEX_PATH, WELCOME
 from src.retrieval import run_pipeline
 from src.ui.components import (
     apply_groww_style,
@@ -136,13 +136,13 @@ def _submit_chat(st_messages: list, prompt: str) -> None:
     # Reply-only: the user message was already shown (see main: Phase 1 uses a
     # separate rerun so the question appears instantly instead of after the
     # full pipeline completes).
-    if not (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists():
+    if not RETRIEVAL_INDEX_PATH.exists():
         st_messages.append(
             {
                 "role": "assistant",
                 "content": (
                     "The search index is missing in this deployment "
-                    f"({CHROMA_PERSIST_DIR.name}/chroma not found)."
+                    f"({RETRIEVAL_INDEX_PATH} not found)."
                 ),
             }
         )
@@ -167,7 +167,7 @@ def _deploy_status() -> str:
     """One-line readiness check so deploy problems are visible in the UI."""
     import os
 
-    store_ok = (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists()
+    store_ok = RETRIEVAL_INDEX_PATH.exists()
     model_ok = LOCAL_MODEL_DIR.is_dir()
     keys = [k for k in ("MISTRAL_API_KEY", "GROQ_API_KEY") if os.getenv(k)]
     return (

@@ -5,13 +5,17 @@ from __future__ import annotations
 import logging
 import threading
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from src.config import TOP_K
-from src.embedding.encoder import Embedder
+from src.embedding.onnx_embedder import get_embedder
 from src.retrieval.generator import generate
 from src.retrieval.guards import run_guards
 from src.retrieval.retriever import RetrievedChunk, Retriever
-from src.vector_store.store import VectorStore
+
+if TYPE_CHECKING:  # heavy deps are imported lazily (runtime stays < 512MB)
+    from src.embedding.encoder import Embedder
+    from src.vector_store.store import VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +155,7 @@ def _get_embedder() -> Embedder:
     if _model_singleton is None:
         with _model_lock:
             if _model_singleton is None:
-                _model_singleton = Embedder()
+                _model_singleton = get_embedder()
     return _model_singleton
 
 
