@@ -1,0 +1,8 @@
+# Build/test-only dependencies — NOT installed on Render.
+# The deployed app queries an exported numpy index + ONNX embeddings, so it
+# never needs ChromaDB (which also drags in huggingface-hub) or
+# sentence-transformers -> torch (~2GB) for the query path. Those are only
+# required to REBUILD the index locally:
+#     pip install -r requirements.txt -r requirements-build.txt
+chromadb==1.5.9
+sentence-transformers==5.1.2
