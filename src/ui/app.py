@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st
 
-from src.config import CHROMA_PERSIST_DIR, WELCOME
+from src.config import CHROMA_PERSIST_DIR, LOCAL_MODEL_DIR, WELCOME
 from src.retrieval import run_pipeline
 from src.ui.components import (
     apply_groww_style,
@@ -169,13 +169,9 @@ def _submit_chat(st_messages: list, prompt: str) -> None:
 def _deploy_status() -> str:
     """One-line readiness check so deploy problems are visible in the UI."""
     import os
-    from pathlib import Path
 
     store_ok = (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists()
-    hf_home = os.environ.get("HF_HOME") or str(Path.home() / ".cache" / "huggingface")
-    model_ok = (
-        Path(hf_home) / "hub" / "models--sentence-transformers--all-MiniLM-L6-v2"
-    ).exists()
+    model_ok = LOCAL_MODEL_DIR.is_dir()
     keys = [k for k in ("MISTRAL_API_KEY", "GROQ_API_KEY") if os.getenv(k)]
     return (
         f"Deploy status | index: {'OK' if store_ok else 'MISSING'} | "

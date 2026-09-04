@@ -21,6 +21,10 @@ CHROMA_DIR = ROOT / "chroma_db"
 LEGACY_COLLECTION_NAME = "sbi_groww_schemes"
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+# Bundled local copy of the embedding model (repo-local, ~87MB) so the app
+# never downloads from HuggingFace at runtime (Render free blocks/slows it).
+MODELS_DIR = DATA_DIR / "models"
+LOCAL_MODEL_DIR = MODELS_DIR / "all-MiniLM-L6-v2"
 MISTRAL_MODEL = "mistral-small-latest"
 GROQ_MODEL = "openai/gpt-oss-20b"
 

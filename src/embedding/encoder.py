@@ -11,7 +11,7 @@ import logging
 
 import numpy as np
 
-from src.config import EMBEDDING_MODEL
+from src.config import EMBEDDING_MODEL, LOCAL_MODEL_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,14 @@ class Embedder:
 
     def __init__(
         self,
-        model_name: str = EMBEDDING_MODEL,
+        model_name: str | None = None,
         device: str | None = None,
         batch_size: int = 64,
     ) -> None:
+        # Prefer the bundled, repo-local model copy so the app never needs to
+        # download from HuggingFace (important on constrained hosts like Render).
+        if model_name is None:
+            model_name = str(LOCAL_MODEL_DIR) if LOCAL_MODEL_DIR.is_dir() else EMBEDDING_MODEL
         self.model_name = model_name
         self.batch_size = batch_size
         self.device = device
@@ -45,6 +49,12 @@ class Embedder:
         from sentence_transformers import SentenceTransformer
 
         kwargs = {"device": device} if device else {}
+        if LOCAL_MODEL_DIR.is_dir() and model_name == str(LOCAL_MODEL_DIR):
+            # All files ship with the repo; never let transformers hit the hub.
+            import os
+
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
         self._model = SentenceTransformer(model_name, **kwargs)
 
         self.dimension = self._model.get_sentence_embedding_dimension()
