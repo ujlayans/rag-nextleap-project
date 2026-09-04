@@ -12,4 +12,6 @@ chroma_db/
 data/raw/
 data/chunks/
 data/embeddings/
-data/vectordb/
+
+# NOTE: data/vectordb/ IS committed (small, ~2.4MB) so Render has a working
+# index out of the box and doesn't need the network-dependent ingest chain.
