@@ -119,7 +119,7 @@ def _generate_mistral(api_key: str, question: str, chunks, model: str) -> str:
     from mistralai import Mistral
 
     prompt = build_prompt(question, chunks)
-    client = Mistral(api_key=api_key)
+    client = Mistral(api_key=api_key, timeout=25.0)
     resp = client.chat.complete(
         model=model,
         messages=[
@@ -135,7 +135,7 @@ def _generate_groq(api_key: str, question: str, chunks) -> str:
     from groq import Groq
 
     prompt = build_prompt(question, chunks)
-    client = Groq(api_key=api_key)
+    client = Groq(api_key=api_key, timeout=25.0)
     resp = client.chat.completions.create(
         model=GROQ_MODEL,
         messages=[

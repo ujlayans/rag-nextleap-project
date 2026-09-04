@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st
 
-from src.config import WELCOME
+from src.config import CHROMA_PERSIST_DIR, WELCOME
 from src.retrieval import run_pipeline
 from src.ui.components import (
     apply_groww_style,
@@ -134,6 +134,22 @@ def check_smalltalk(query: str) -> str | None:
 
 def _submit_chat(st_messages: list, prompt: str) -> None:
     st_messages.append({"role": "user", "content": prompt})
+
+    # Fail fast instead of hanging on a missing index (e.g. Render deploy that
+    # did not run the ingest chain in the build). Locally the store always exists.
+    if not (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists():
+        st_messages.append(
+            {
+                "role": "assistant",
+                "content": (
+                    "The search index is missing in this deployment "
+                    f"({CHROMA_PERSIST_DIR.name}/chroma not found). On Render the "
+                    "build command must run the ingest chain (data loading -> chunking -> "
+                    "embedding -> vector store) before starting the app."
+                ),
+            }
+        )
+        return
 
     reply = check_smalltalk(prompt)
     if reply is not None:
