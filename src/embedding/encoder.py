@@ -8,6 +8,14 @@ fine-tuned.
 from __future__ import annotations
 
 import logging
+import os
+
+# Keep the process light on constrained hosts (Render free tier = 512MB).
+# torch's per-thread buffers dominate peak RSS; capping threads cuts RAM a lot.
+os.environ.setdefault("OMP_NUM_THREADS", "4")
+os.environ.setdefault("MKL_NUM_THREADS", "4")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "4")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np
 
@@ -50,11 +58,11 @@ class Embedder:
 
         kwargs = {"device": device} if device else {}
         if LOCAL_MODEL_DIR.is_dir() and model_name == str(LOCAL_MODEL_DIR):
-            # All files ship with the repo; never let transformers hit the hub.
-            import os
-
             os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
             os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        import torch
+
+        torch.set_num_threads(4)  # keep peak RSS low on constrained hosts
         self._model = SentenceTransformer(model_name, **kwargs)
 
         self.dimension = self._model.get_sentence_embedding_dimension()
