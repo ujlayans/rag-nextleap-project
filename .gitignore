@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+chroma_db/
+.env
+.DS_Store
+*.egg-info/
+.streamlit/
+
+# Generated pipeline artifacts (reproducible — never commit)
+data/raw/
+data/chunks/
+data/embeddings/
+data/vectordb/

@@ -1,0 +1,8 @@
+id,scheme,category,url,source_type,in_corpus,notes
+1,SBI Small Cap Fund Direct Growth,Small Cap,https://groww.in/mutual-funds/sbi-small-midcap-fund-direct-growth,Groww scheme page,yes,URL slug says small-midcap; page title is Small Cap
+2,SBI Mid Cap Direct Plan Growth,Mid Cap,https://groww.in/mutual-funds/sbi-mid-cap-direct-plan-growth,Groww scheme page,yes,
+3,SBI Large Cap Direct Plan Growth,Large Cap,https://groww.in/mutual-funds/sbi-large-cap-direct-plan-growth,Groww scheme page,yes,
+4,SBI Nifty Next 50 Index Fund Direct Growth,Nifty Next 50 Index,https://groww.in/mutual-funds/sbi-nifty-next-50-index-fund-direct-growth,Groww scheme page,yes,
+5,SBI Gold Direct Plan Growth,Gold,https://groww.in/mutual-funds/sbi-gold-fund-direct-growth,Groww scheme page,yes,
+6,SBI ELSS Tax Saver Fund Direct Growth,ELSS,https://groww.in/mutual-funds/sbi-elss-tax-saver-fund-direct-growth,Groww scheme page,yes,Page shows ELSS 3Y lock-in
+7,SBI Flexicap Fund Direct Growth,Flexi Cap,https://groww.in/mutual-funds/sbi-flexicap-fund-direct-growth,Groww scheme page,yes,

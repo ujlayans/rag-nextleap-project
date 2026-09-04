@@ -1,0 +1,7 @@
+Facts-only. No investment advice.
+
+This assistant repeats published details from a closed set of Groww scheme pages for seven SBI Mutual Fund Direct Growth schemes. It is not Groww, not SBI Mutual Fund, and not a SEBI-registered adviser.
+
+It does not offer to buy or sell securities, build portfolios, or compute/compare returns. Verify every number on the live Groww page and the scheme SID/KIM before you act. Mutual fund investments are subject to market risks; read all scheme-related documents carefully.
+
+Do not share PAN, Aadhaar, account or folio numbers, OTPs, email, or phone. This prototype does not store personal identifiers.
