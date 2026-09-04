@@ -69,14 +69,22 @@ def generate(
     """Return a plain-text answer plus the provider used.
 
     Provider chain (first success wins):
-      1. Mistral   — if ``MISTRAL_API_KEY`` is set.
-      2. Groq      — if ``GROQ_API_KEY`` is set (runs when Mistral is absent
-                     or errors, e.g. the per-workspace 429 rate limit).
+      1. Groq      — if ``GROQ_API_KEY`` is set (runs first because Mistral
+                     frequently 429-rate-limits on this workspace).
+      2. Mistral   — if ``MISTRAL_API_KEY`` is set.
       3. Extractive — always available fallback (architecture §5).
     """
     load_dotenv()
     mistral_key = os.getenv("MISTRAL_API_KEY")
     groq_key = os.getenv("GROQ_API_KEY")
+
+    if groq_key:
+        try:
+            text = _generate_groq(groq_key, question, chunks).strip()
+            if text:
+                return GenResult(text=text, provider="groq")
+        except Exception as exc:  # degrade to the next provider
+            logger.warning("Groq generation failed (%s); trying Mistral.", exc)
 
     if mistral_key:
         try:
@@ -85,14 +93,6 @@ def generate(
                 return GenResult(text=text, provider="mistral")
         except Exception as exc:  # degrade to the next provider
             logger.warning("Mistral generation failed (%s); falling back.", exc)
-
-    if groq_key:
-        try:
-            text = _generate_groq(groq_key, question, chunks).strip()
-            if text:
-                return GenResult(text=text, provider="groq")
-        except Exception as exc:
-            logger.warning("Groq generation failed (%s); using extractive fallback.", exc)
 
     return GenResult(text=_generate_extractive(chunks), provider="extractive")
 

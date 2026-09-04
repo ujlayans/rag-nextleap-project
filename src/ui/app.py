@@ -133,19 +133,16 @@ def check_smalltalk(query: str) -> str | None:
 
 
 def _submit_chat(st_messages: list, prompt: str) -> None:
-    st_messages.append({"role": "user", "content": prompt})
-
-    # Fail fast instead of hanging on a missing index (e.g. Render deploy that
-    # did not run the ingest chain in the build). Locally the store always exists.
+    # Reply-only: the user message was already shown (see main: Phase 1 uses a
+    # separate rerun so the question appears instantly instead of after the
+    # full pipeline completes).
     if not (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists():
         st_messages.append(
             {
                 "role": "assistant",
                 "content": (
                     "The search index is missing in this deployment "
-                    f"({CHROMA_PERSIST_DIR.name}/chroma not found). On Render the "
-                    "build command must run the ingest chain (data loading -> chunking -> "
-                    "embedding -> vector store) before starting the app."
+                    f"({CHROMA_PERSIST_DIR.name}/chroma not found)."
                 ),
             }
         )
@@ -230,7 +227,8 @@ def main() -> None:
             with send_col:
                 submitted = st.form_submit_button("➤")
 
-    # A chip click (st.button) submits its question; otherwise the form text.
+    # Phase 1 — a new question is captured and the user bubble is rendered
+    # immediately (via its own rerun), so the chat never looks frozen.
     pending = st.session_state.pop("pending_question", None)
     typed_text = (typed_text or "").strip()
     if submitted and typed_text:
@@ -241,7 +239,14 @@ def main() -> None:
         effective = None
 
     if effective:
-        _submit_chat(st.session_state.messages, effective)
+        st.session_state.messages.append({"role": "user", "content": effective})
+        st.session_state["answering"] = effective
+        st.rerun()
+
+    # Phase 2 — answer a queued question on the rerun right after Phase 1.
+    answering = st.session_state.pop("answering", None)
+    if answering:
+        _submit_chat(st.session_state.messages, answering)
         st.rerun()
 
     render_disclaimer()
