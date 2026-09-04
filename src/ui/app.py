@@ -155,11 +155,33 @@ def _submit_chat(st_messages: list, prompt: str) -> None:
     if reply is not None:
         body, citation = reply, None
     else:
-        with st.spinner("Looking up Groww snapshot…"):
-            result = run_pipeline(prompt)
-        body, citation = result.text, result.citation
+        try:
+            with st.spinner("Looking up Groww snapshot…"):
+                result = run_pipeline(prompt)
+            body, citation = result.text, result.citation
+        except Exception as exc:
+            body = f"Something broke while looking this up: {type(exc).__name__}: {exc}"
+            citation = None
 
     st_messages.append({"role": "assistant", "content": body, "citation": citation})
+
+
+def _deploy_status() -> str:
+    """One-line readiness check so deploy problems are visible in the UI."""
+    import os
+    from pathlib import Path
+
+    store_ok = (CHROMA_PERSIST_DIR / "chroma.sqlite3").exists()
+    hf_home = os.environ.get("HF_HOME") or str(Path.home() / ".cache" / "huggingface")
+    model_ok = (
+        Path(hf_home) / "hub" / "models--sentence-transformers--all-MiniLM-L6-v2"
+    ).exists()
+    keys = [k for k in ("MISTRAL_API_KEY", "GROQ_API_KEY") if os.getenv(k)]
+    return (
+        f"Deploy status | index: {'OK' if store_ok else 'MISSING'} | "
+        f"model: {'cached' if model_ok else 'not cached'} | "
+        f"llm: {', '.join(k.replace('_API_KEY', '').lower() for k in keys) if keys else 'none'}"
+    )
 
 
 def main() -> None:
@@ -180,6 +202,8 @@ def main() -> None:
 
         # Example questions: directly visible, stacked vertically (no dropdown).
         render_examples()
+
+        st.caption(_deploy_status())
 
         # Chat history: rendered as a single self-contained HTML block inside
         # its own scrollable region (never split across markdown calls).
